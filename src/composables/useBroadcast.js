@@ -1,9 +1,10 @@
 import { state } from './useStore'
 
 const bc = new BroadcastChannel('scoreboard')
+const MAX_CLOCK_MS = 20 * 60 * 1000
 
 export function initBroadcast(){
-  bc.onmessage = (e)=>{
+  bc.onmessage = (e)=> {
     const { type, payload } = e.data || {}
     
     switch(type) {
@@ -15,10 +16,12 @@ export function initBroadcast(){
       case 'PERIOD': state.period = payload; break
       case 'RUN': state.running = true; break
       case 'STOP': state.running = false; break
-      case 'RM_SEC': state.clockMs--; break
-      case 'ADD_SEC': state.clockMs++; break
-      case 'SET_CLOCK': state.clockMs = payload|0; break
-      case 'RESET_CLOCK': Object.assign(state, {clockMs:20*60*1000, running:false, _lastT:null }); break
+      case 'RM_SEC': state.clockMs -= 1000; break
+      case 'ADD_SEC': state.clockMs = state.clockMs + 1000 >= MAX_CLOCK_MS ? MAX_CLOCK_MS : state.clockMs + 1000;; break
+      case 'RM_5-SEC': state.clockMs -= 5000; break
+      case 'ADD_5-SEC': state.clockMs = state.clockMs + 5000 >= MAX_CLOCK_MS ? MAX_CLOCK_MS : state.clockMs + 5000; break
+      case 'SET_CLOCK': state.clockMs = payload | 0; break
+      case 'RESET_CLOCK': Object.assign(state, {clockMs: 20*60*1000, running: false, _lastT: null }); break
     }
   }
 }
