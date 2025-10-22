@@ -3,7 +3,8 @@ import { state, clockText } from '../composables/useStore'
 </script>
 
 <template>
-  <div class="wrap">
+  <!--  
+  <div class="wrapper">
     <div class="team" v-once>HOME</div>
     <div class="score">{{ state.home }}</div>
     <div class="sep" v-once>:</div>
@@ -12,22 +13,24 @@ import { state, clockText } from '../composables/useStore'
     <div class="clock">{{ clockText }}</div>
     <div class="period">P{{ state.period }}</div>
   </div>
+  -->
 
   <div class="wrapper">
     
     <div class="scoreboard">
 
+      <!-- Logo im Controller festlegen -->
       <div class="logo-wrapper">
         <img src="" class="logo" id="leagueLogo"/>
       </div>
 
-      <div id="hometeam">
+      <div id="hometeam" v-once>
         <div class="grid-with-penalties_home">
           
           <!-- Team Name, Score -->
           <div class="home-team devils">
-            <span class="team-name" id="home-team">Home Team</span>
-            <span class="score" id="home-score">0</span>
+            <span class="team-name" id="home-team">Red Devils</span>
+            <div class="score" id="home-score">{{ state.home }}</div>
           </div>
 
           <!-- Penalties (max. 3x) | inserted via controls -->
@@ -39,13 +42,13 @@ import { state, clockText } from '../composables/useStore'
         
       </div>
 
-      <div id="guestteam">
+      <div id="guestteam" v-once>
         <div class="grid-with-penalties_guest">
           
           <!-- Team Name, Score -->
           <div class="guest-team opponent">
-            <span class="score" id="guest-score">0</span>
-            <span class="team-name" id="guest-team">Guest Team</span>
+            <span class="score" id="guest-score">{{ state.away }}</span>
+            <span class="team-name" id="guest-team">ETV Ladies</span>
           </div>
 
           <!-- Penalties (max. 3x) | inserted via controls -->
@@ -57,11 +60,9 @@ import { state, clockText } from '../composables/useStore'
         
       </div>
 
-      <span class="period" id="period">0</span>
+      <span class="period" id="period">{{ state.period }}</span>
 
-      <div class="time">
-        <span class="game-clock" id="game-clock">00:00</span>
-      </div>
+      <div class="time"><span class="game-clock" id="game-clock">{{ clockText }}</span></div>
 
     </div>
 
@@ -70,5 +71,5 @@ import { state, clockText } from '../composables/useStore'
 </template>
 
 <style scoped>
-
+  
 </style>

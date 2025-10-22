@@ -1,5 +1,4 @@
 @import url("https://use.typekit.net/lge5tto.css"); /* Adobe Industry Font */
-@import url("bg-colors.css");
 
 :root {
   --font-main: "industry", sans-serif; 
@@ -10,7 +9,7 @@
 
   --sb-height: 80px;
   --logo-width: 80px;
-  --team-width: 400px;
+  --team-width: 270px;
 
   --team-name-size: 24px;
   --score-size: 32px;

@@ -12,21 +12,22 @@ function setClock(){
 </script>
 
 <template>
-  <main style="padding:16px; display:grid; gap:12px; grid-auto-rows:min-content; max-width:560px;">
+  <main>
     <section>
-      <button @click="send({type:'HOME+'})">Home +</button>
-      <button @click="send({type:'HOME-'})">Home -</button>
-      <button @click="send({type:'AWAY+'})">Away +</button>
-      <button @click="send({type:'AWAY-'})">Away -</button>
+      <button @click="send({type:'HOME+'})">Home+</button>
+      <button @click="send({type:'HOME-'})">Home-</button>
+      <button @click="send({type:'AWAY+'})">Away+</button>
+      <button @click="send({type:'AWAY-'})">Away-</button>
     </section>
     <section>
-      <label>P:</label>
-      <input type="number" min="1" value="1" @change="e=>send({type:'PERIOD', payload: e.target.value})"/>
+      <label>P: </label>
+      <input v-model="p" type="text">
+      <button @click="send({type:'PERIOD', payload: p})">Set</button>
     </section>
     <section>
-      <label>Zeit mm:ss</label>
-      <input v-model="mm" type="number" min="0" style="width:4rem"> :
-      <input v-model="ss" type="number" min="0" max="59" style="width:4rem">
+      <label>Zeit mm:ss </label>
+      <input v-model="mm" type="number" min="0"> :
+      <input v-model="ss" type="number" min="0" max="59">
       <button @click="setClock">Set</button>
     </section>
     <section>
@@ -38,5 +39,14 @@ function setClock(){
 </template>
 
 <style scoped>
-
+  main {
+    padding:16px; 
+    display:grid; 
+    gap:12px; 
+    grid-auto-rows:min-content; 
+    max-width:560px;
+  }
+  input {
+    width: 2rem;
+  }
 </style>
