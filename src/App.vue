@@ -1,12 +1,12 @@
 <script setup>
 import { onMounted } from 'vue'
-import { startRafClock } from './composables/useRafClock'
+import { startClock } from './composables/useClock'
 import { initBroadcast } from './composables/useBroadcast'
 import Scoreboard from './components/Scoreboard.vue'
 
 onMounted(() => {
   initBroadcast()
-  startRafClock()
+  startClock()
 })
 </script>
 

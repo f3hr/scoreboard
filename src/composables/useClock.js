@@ -1,6 +1,6 @@
 import { state } from './useStore'
 
-export function startRafClock(){
+export function startClock(){
   function tick(t){
     if (state.running){
       if (state._lastT == null) state._lastT = t

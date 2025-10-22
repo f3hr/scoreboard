@@ -19,18 +19,17 @@ import { state, clockText } from '../composables/useStore'
     
     <div class="scoreboard">
 
-      <!-- Logo im Controller festlegen -->
       <div class="logo-wrapper">
-        <img src="" class="logo" id="leagueLogo"/>
+        <img v-if="state.gameTyp" :src="state.gameTyp" class="logo" id="gameTyp"/>
       </div>
 
-      <div id="hometeam" v-once>
+      <div id="hometeam">
         <div class="grid-with-penalties_home">
           
           <!-- Team Name, Score -->
           <div class="home-team devils">
-            <span class="team-name" id="home-team">Red Devils</span>
-            <div class="score" id="home-score">{{ state.home }}</div>
+            <span class="team-name" id="home-team" v-once>Red Devils</span>
+            <span class="score" id="home-score">{{ state.home }}</span>
           </div>
 
           <!-- Penalties (max. 3x) | inserted via controls -->
@@ -42,13 +41,13 @@ import { state, clockText } from '../composables/useStore'
         
       </div>
 
-      <div id="guestteam" v-once>
+      <div id="guestteam">
         <div class="grid-with-penalties_guest">
           
           <!-- Team Name, Score -->
           <div class="guest-team opponent">
             <span class="score" id="guest-score">{{ state.away }}</span>
-            <span class="team-name" id="guest-team">ETV Ladies</span>
+            <span class="team-name" id="guest-team" v-once>ETV Ladies</span>
           </div>
 
           <!-- Penalties (max. 3x) | inserted via controls -->

@@ -1,6 +1,7 @@
 import { reactive, computed } from 'vue'
 
 export const state = reactive({
+  gameTyp: "",
   home: 0,
   away: 0,
   period: 1,
