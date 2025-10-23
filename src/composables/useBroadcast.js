@@ -1,7 +1,25 @@
-import { state } from './useStore'
+import {
+  state,
+  addHomePenalty,
+  removeHomePenaltyAt,
+  syncHomePenalties,
+  addAwayPenalty,
+  removeAwayPenaltyAt,
+  syncAwayPenalties,
+} from './useStore'
 
 const bc = new BroadcastChannel('scoreboard')
 const MAX_CLOCK_MS = 20 * 60 * 1000
+
+function broadcast(msg) { bc.postMessage(msg) }
+
+function emitHomePenalties() {
+  broadcast({ type: 'STATE_HOME_PENALTIES', payload: [...state.homePenalties] })
+}
+
+function emitAwayPenalties() {
+  broadcast({ type: 'STATE_AWAY_PENALTIES', payload: [...state.awayPenalties] })
+}
 
 export function initBroadcast(){
   bc.onmessage = (e)=> {
@@ -22,10 +40,17 @@ export function initBroadcast(){
       case 'ADD_5-SEC': state.clockMs = state.clockMs + 5000 >= MAX_CLOCK_MS ? MAX_CLOCK_MS : state.clockMs + 5000; break
       case 'SET_CLOCK': state.clockMs = payload | 0; break
       case 'RESET_CLOCK': Object.assign(state, {clockMs: 20*60*1000, running: false, _lastT: null }); break
+      
+      case 'ADD_PENALTY_HOME': if (addHomePenalty(payload)) emitHomePenalties(); break
+      case 'RM_PENALTY_HOME': if (removeHomePenaltyAt(payload)) emitHomePenalties(); break
+      case 'REQUEST_HOME_PENALTIES': emitHomePenalties(); break
+      case 'STATE_HOME_PENALTIES': syncHomePenalties(payload); break
+      case 'ADD_PENALTY_AWAY': if (addAwayPenalty(payload)) emitAwayPenalties(); break
+      case 'RM_PENALTY_AWAY': if (removeAwayPenaltyAt(payload)) emitAwayPenalties(); break
+      case 'REQUEST_AWAY_PENALTIES': emitAwayPenalties(); break
+      case 'STATE_AWAY_PENALTIES': syncAwayPenalties(payload); break
     }
   }
 }
 
-export function send(msg){
-  bc.postMessage(msg)
-}
+export function send(msg){ broadcast(msg) }

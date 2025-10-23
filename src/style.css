@@ -69,36 +69,6 @@ body {
   height: auto;
 }
 
-.grid-with-penalties_home {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-areas:
-    "home-team home-team home-team"
-    "home-team_p1 home-team_p2 home-team_p3";
-  gap: 0;
-  width: 70%;
-}
-.grid-with-penalties_guest {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-areas:
-    "guest-team guest-team guest-team"
-    "guest-team_p1 guest-team_p2 guest-team_p3";
-  gap: 0;
-  width: 80%;
-}
-
-.home-team { grid-area: home-team;}
-.guest-team { grid-area: guest-team;}
-
-#home-team_p1 { grid-area: home-team_p1; }
-#home-team_p2 { grid-area: home-team_p2; }
-#home-team_p3 { grid-area: home-team_p3; }
-
-#guest-team_p1 { grid-area: guest-team_p1; }
-#guest-team_p2 { grid-area: guest-team_p2; }
-#guest-team_p3 { grid-area: guest-team_p3; }
-
 .home-team, .guest-team {
   width: var(--team-width);
   height: var(--sb-height);
@@ -128,17 +98,19 @@ body {
   padding: 8px 12px;
 }
 
+.penalties {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
 .penalty {
   width: fit-content;
   padding: 4px 8px;
   background-color: gold;
 
   font-family: var(--font-main);
-  font-size: 24px;
-}
-.penalty.interactive {
-  cursor: pointer;
-  user-select: none;
+  font-size: 16px;
 }
 
 .period, .time {
