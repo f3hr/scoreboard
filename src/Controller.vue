@@ -107,7 +107,9 @@ onUnmounted(() => {
   <main>
     
     <section style="display: flex; flex-direction: column;">
-      <iframe src="../index.html" title="Scoreboard View"></iframe>
+
+      <iframe src="../index.html" style="width: 150%;"></iframe>
+
       <div style="display: flex; gap: 0.5rem; width: 150%;">
         <p>"ö" Uhr stoppen</p>
         <p>"ä" Uhr fortsetzen</p>
@@ -201,9 +203,6 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-  iframe {
-    width: 150%;
-  }
   p {
     background-color: rgb(58, 58, 58);
     color: white; 

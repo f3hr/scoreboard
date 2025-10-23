@@ -1,4 +1,4 @@
 @echo off
 cd /d "%~dp0"
-call npm run dev
+call npm run serve
 pause
