@@ -2,7 +2,9 @@ import { createServer } from 'http'
 import { promises as fs } from 'fs'
 import { dirname, extname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import { performance } from 'node:perf_hooks'
 import { WebSocketServer } from 'ws'
+
 import {
   createInitialState,
   serializeState,
@@ -32,6 +34,7 @@ state.homePenalties = []
 state.awayPenalties = []
 
 const clients = new Set()
+let lastTickTs = null
 
 const server = createServer(async (req, res) => {
   try {
@@ -52,7 +55,6 @@ const server = createServer(async (req, res) => {
         file = join(filePath, 'index.html')
       }
     } catch {
-      // fallback to index.html for SPA-style routes
       file = join(distDir, 'index.html')
     }
 
@@ -69,6 +71,15 @@ const server = createServer(async (req, res) => {
 
 const wss = new WebSocketServer({ noServer: true })
 
+function broadcastState() {
+  const snapshot = JSON.stringify({ type: 'STATE_SYNC', payload: serializeState(state) })
+  for (const client of clients) {
+    if (client.readyState === client.OPEN) {
+      client.send(snapshot)
+    }
+  }
+}
+
 wss.on('connection', (socket) => {
   clients.add(socket)
   socket.send(JSON.stringify({ type: 'STATE_SYNC', payload: serializeState(state) }))
@@ -78,7 +89,7 @@ wss.on('connection', (socket) => {
     try {
       message = JSON.parse(raw.toString())
     } catch {
-      socket.send(JSON.stringify({ type: 'ERROR', error: 'Ungültige Nachricht' }))
+      socket.send(JSON.stringify({ type: 'ERROR', error: 'Ungueltige Nachricht' }))
       return
     }
 
@@ -94,18 +105,46 @@ wss.on('connection', (socket) => {
       return
     }
 
-    const result = applyAction(state, { type, payload })
+    let result = null
+
+    if (type === 'CLOCK_TICK') {
+      if (!state.running) return
+
+      const numeric = Number(payload)
+      if (!Number.isFinite(numeric) || numeric <= 0) return
+
+      const now = performance.now()
+      const elapsed = lastTickTs != null ? now - lastTickTs : numeric
+      const delta = Math.max(0, Math.min(numeric, elapsed))
+      lastTickTs = now
+      if (delta === 0) return
+
+      result = applyAction(state, { type, payload: delta })
+    } else {
+      result = applyAction(state, { type, payload })
+      if (result?.changed) {
+        if (type === 'RUN') {
+          lastTickTs = performance.now()
+        } else if (
+          type === 'STOP' ||
+          type === 'RESET_CLOCK' ||
+          type === 'SET_CLOCK'
+        ) {
+          lastTickTs = null
+        }
+      }
+    }
+
     if (result?.error) {
       socket.send(JSON.stringify({ type: 'ERROR', error: result.error }))
       return
     }
+
     if (result?.changed) {
-      const snapshot = JSON.stringify({ type: 'STATE_SYNC', payload: serializeState(state) })
-      for (const client of clients) {
-        if (client.readyState === client.OPEN) {
-          client.send(snapshot)
-        }
+      if (!state.running) {
+        lastTickTs = null
       }
+      broadcastState()
     }
   })
 
@@ -131,5 +170,5 @@ server.on('upgrade', (request, socket, head) => {
 })
 
 server.listen(port, () => {
-  console.log(`Server listening on http://127.0.0.1:${port}`)
+  console.log(`Controller on http://127.0.0.1:${port}/controller.html`)
 })
