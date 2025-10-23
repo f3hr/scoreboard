@@ -1,5 +1,5 @@
 <script setup>
-import { state, clockText } from '../composables/useStore'
+import { state, clockText, formatPenaltyTime } from '../composables/useStore'
 </script>
 
 <template>
@@ -17,14 +17,14 @@ import { state, clockText } from '../composables/useStore'
           
           <!-- Team Name, Score -->
           <div class="home-team devils">
-            <span class="team-name" id="home-team" v-once>Red Devils</span>
+            <span class="team-name" id="home-team">{{state.homeTeam}}</span>
             <span class="score" id="home-score">{{ state.home }}</span>
           </div>
 
           <!-- Penalties -->
           <div class="penalties">
-            <span v-for="(item,i) in state.homePenalties" :key="i" class="penalty">
-              {{ item }}
+            <span v-for="item in state.homePenalties" :key="item.id" class="penalty">
+              {{ item.player }} {{ formatPenaltyTime(item.remainingMs) }}
             </span>
           </div>
           
@@ -38,13 +38,13 @@ import { state, clockText } from '../composables/useStore'
           <!-- Team Name, Score -->
           <div class="guest-team opponent">
             <span class="score" id="guest-score">{{ state.away }}</span>
-            <span class="team-name" id="guest-team" v-once>ETV Ladies</span>
+            <span class="team-name" id="guest-team">{{state.awayTeam}}</span>
           </div>
 
           <!-- Penalties -->
           <div class="penalties">
-            <span v-for="(item,i) in state.awayPenalties" :key="i" class="penalty">
-              {{ item }}
+            <span v-for="item in state.awayPenalties" :key="item.id" class="penalty">
+              {{ item.player }} {{ formatPenaltyTime(item.remainingMs) }}
             </span>
           </div>
           

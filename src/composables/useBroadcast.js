@@ -5,20 +5,29 @@ import {
   syncHomePenalties,
   addAwayPenalty,
   removeAwayPenaltyAt,
+  adjustHomePenaltyAt,
+  adjustAwayPenaltyAt,
   syncAwayPenalties,
 } from './useStore'
 
 const bc = new BroadcastChannel('scoreboard')
 const MAX_CLOCK_MS = 20 * 60 * 1000
 
+const clonePenalty = (p) => ({
+  id: p.id,
+  player: p.player,
+  durationMs: p.durationMs,
+  remainingMs: p.remainingMs,
+})
+
 function broadcast(msg) { bc.postMessage(msg) }
 
-function emitHomePenalties() {
-  broadcast({ type: 'STATE_HOME_PENALTIES', payload: [...state.homePenalties] })
+export function emitHomePenalties() {
+  broadcast({ type: 'STATE_HOME_PENALTIES', payload: state.homePenalties.map(clonePenalty) })
 }
 
-function emitAwayPenalties() {
-  broadcast({ type: 'STATE_AWAY_PENALTIES', payload: [...state.awayPenalties] })
+export function emitAwayPenalties() {
+  broadcast({ type: 'STATE_AWAY_PENALTIES', payload: state.awayPenalties.map(clonePenalty) })
 }
 
 export function initBroadcast(){
@@ -27,6 +36,8 @@ export function initBroadcast(){
     
     switch(type) {
       case 'SET_GAME-TYP': state.gameTyp = "" + payload; break
+      case 'SET_HOME-TEAM': state.homeTeam = payload; break
+      case 'SET_AWAY-TEAM': state.awayTeam = payload; break
       case 'HOME+': state.home++; break
       case 'HOME-': state.home = Math.max(0, state.home-1); break
       case 'AWAY+': state.away++; break
@@ -43,10 +54,22 @@ export function initBroadcast(){
       
       case 'ADD_PENALTY_HOME': if (addHomePenalty(payload)) emitHomePenalties(); break
       case 'RM_PENALTY_HOME': if (removeHomePenaltyAt(payload)) emitHomePenalties(); break
+      case 'ADJUST_PENALTY_HOME': {
+        const idx = Number(payload?.index)
+        const delta = Number(payload?.deltaMs)
+        if (Number.isInteger(idx) && Number.isFinite(delta) && adjustHomePenaltyAt(idx, delta)) emitHomePenalties()
+        break
+      }
       case 'REQUEST_HOME_PENALTIES': emitHomePenalties(); break
       case 'STATE_HOME_PENALTIES': syncHomePenalties(payload); break
       case 'ADD_PENALTY_AWAY': if (addAwayPenalty(payload)) emitAwayPenalties(); break
       case 'RM_PENALTY_AWAY': if (removeAwayPenaltyAt(payload)) emitAwayPenalties(); break
+      case 'ADJUST_PENALTY_AWAY': {
+        const idx = Number(payload?.index)
+        const delta = Number(payload?.deltaMs)
+        if (Number.isInteger(idx) && Number.isFinite(delta) && adjustAwayPenaltyAt(idx, delta)) emitAwayPenalties()
+        break
+      }
       case 'REQUEST_AWAY_PENALTIES': emitAwayPenalties(); break
       case 'STATE_AWAY_PENALTIES': syncAwayPenalties(payload); break
     }

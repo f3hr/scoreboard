@@ -1,17 +1,18 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { send, initBroadcast } from './composables/useBroadcast'
-import { state } from './composables/useStore'
+import { state, formatPenaltyTime } from './composables/useStore'
 
 const mm = ref(20)
 const ss = ref(0)
 
 const selected = ref(state.gameTyp)
 const period = ref(state.period)
-const nr = ref('')
-const min = ref(2)
+
+const nrHome = ref('')
+const timeHome = ref(2)
 const nrAway = ref('')
-const minAway = ref(2)
+const timeAway = ref(2)
 
 watch(() => state.gameTyp, (val) => { selected.value = val})
 watch(() => state.period, (val) => { period.value = val})
@@ -19,6 +20,47 @@ watch(() => state.period, (val) => { period.value = val})
 function setClock(){
   const ms = (Number(mm.value)*60 + Number(ss.value)) * 1000
   send({ type: 'SET_CLOCK', payload: ms })
+}
+
+
+let penaltySeed = 0
+
+function createPenaltyPayload(playerRef, minutesRef) {
+  const playerNr = Number.parseInt(playerRef.value, 10)
+  const minutes = Number(minutesRef.value)
+  
+  if (Number.isNaN(playerNr) || Number.isNaN(minutes) || minutes <= 0) return null
+  
+  const durationMs = Math.round(minutes * 60 * 1000)
+  
+  const entry = {
+    id: `${Date.now()}-${penaltySeed++}`, // basically UID
+    player: playerNr,
+    durationMs,
+    remainingMs: durationMs,
+  }
+
+  return entry
+}
+
+function addHomePenalty() {
+  const payload = createPenaltyPayload(nrHome, timeHome)
+  if (!payload) return
+  send({ type: 'ADD_PENALTY_HOME', payload })
+}
+
+function addAwayPenalty() {
+  const payload = createPenaltyPayload(nrAway, timeAway)
+  if (!payload) return
+  send({ type: 'ADD_PENALTY_AWAY', payload })
+}
+
+function adjustHomePenalty(idx, deltaSeconds) {
+  send({ type: 'ADJUST_PENALTY_HOME', payload: { index: idx, deltaMs: deltaSeconds * 1000 } })
+}
+
+function adjustAwayPenalty(idx, deltaSeconds) {
+  send({ type: 'ADJUST_PENALTY_AWAY', payload: { index: idx, deltaMs: deltaSeconds * 1000 } })
 }
 
 const keymap = {
@@ -46,8 +88,10 @@ function onKey(e) {
 
 onMounted(() => {
   initBroadcast()
+  
   window.addEventListener('keydown', onKey, {passive: false});
   window.addEventListener('beforeunload', beforeUnloadHandler);
+  
   send({ type: 'REQUEST_HOME_PENALTIES' })
   send({ type: 'REQUEST_AWAY_PENALTIES' })
 })
@@ -84,6 +128,18 @@ onUnmounted(() => {
     </section>
 
     <section>
+      <label>Home Team </label>
+      <input v-model="homeTeamName" type="text" style="width: 12rem;">
+      <button @click="send({type: 'SET_HOME-TEAM', payload: homeTeamName})">Set</button>
+    </section>
+
+    <section>
+      <label>Away Team </label>
+      <input v-model="awayTeamName" type="text" style="width: 12rem;">
+      <button @click="send({type: 'SET_AWAY-TEAM', payload: awayTeamName})">Set</button>
+    </section>
+
+    <section>
       <button @click="send({type:'HOME+'})">Home+</button>
       <button @click="send({type:'HOME-'})">Home-</button>
       <button @click="send({type:'AWAY+'})">Away+</button>
@@ -106,32 +162,36 @@ onUnmounted(() => {
     </section>
 
     <section>
-      <span>Penalty Home Team (2min = 120, 10min = 600) </span>
-      <label><input v-model="nr" type="number" min="1" max="99"></label>
-      <label><input v-model="min" type="number" min="2" max="10"></label>
-      <button @click="send({type:'ADD_PENALTY_HOME', payload: nr.toString() + ' ' + min.toString() + ':00'})">Set</button>
+      <span>Penalty Home Team </span>
+      <label><input v-model="nrHome" type="number" min="1" max="99"></label>
+      <label><input v-model="timeHome" type="number" min="2" max="10"></label>
+      <button @click="addHomePenalty">Set</button>
     </section>
 
     <section>
       <div class="penaltyBoxes">
-        <p v-for="(item,j) in state.homePenalties" :key="j">
-          {{ item }}
+        <p v-for="(item,j) in state.homePenalties" :key="item.id">
+          {{ item.player }} {{ formatPenaltyTime(item.remainingMs) }}
+          <button type="button" @click="adjustHomePenalty(j, -1)">-1s</button>
+          <button type="button" @click="adjustHomePenalty(j, 1)">+1s</button>
           <button type="button" @click="send({ type: 'RM_PENALTY_HOME', payload: j })">X</button>
         </p>
       </div>
     </section>
 
     <section>
-      <span>Penalty Away Team (2min = 120, 10min = 600) </span>
+      <span>Penalty Away Team </span>
       <label><input v-model="nrAway" type="number" min="1" max="99"></label>
-      <label><input v-model="minAway" type="number" min="2" max="10"></label>
-      <button @click="send({type:'ADD_PENALTY_AWAY', payload: nrAway.toString() + ' ' + minAway.toString() + ':00'})">Set</button>
+      <label><input v-model="timeAway" type="number" min="2" max="10"></label>
+      <button @click="addAwayPenalty">Set</button>
     </section>
 
     <section>
       <div class="penaltyBoxes">
-        <p v-for="(item,k) in state.awayPenalties" :key="k">
-          {{ item }}
+        <p v-for="(item,k) in state.awayPenalties" :key="item.id">
+          {{ item.player }} {{ formatPenaltyTime(item.remainingMs) }}
+          <button type="button" @click="adjustAwayPenalty(k, -1)">-1s</button>
+          <button type="button" @click="adjustAwayPenalty(k, 1)">+1s</button>
           <button type="button" @click="send({ type: 'RM_PENALTY_AWAY', payload: k })">X</button>
         </p>
       </div>
