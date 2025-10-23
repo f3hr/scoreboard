@@ -1,11 +1,11 @@
 <script setup>
 import { onMounted } from 'vue'
 import { startClock } from './composables/useClock'
-import { initBroadcast } from './composables/useBroadcast'
+import { initSocket } from './composables/useSocket'
 import Scoreboard from './components/Scoreboard.vue'
 
 onMounted(() => {
-  initBroadcast()
+  initSocket()
   startClock()
 })
 </script>

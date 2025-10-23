@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "vite --open /controller.html",
     "build": "vite build",
-    "serve": "npx http-server dist -p 8080 -o /controller.html",
+    "serve": "npm run build && node server.js",
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
-    "vue": "^3.5.22"
+    "vue": "^3.5.22",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",

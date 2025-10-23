@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { send, initBroadcast } from './composables/useBroadcast'
+import { send, initSocket } from './composables/useSocket'
 import { state, formatPenaltyTime } from './composables/useStore'
 
 const mm = ref(20)
@@ -8,14 +8,18 @@ const ss = ref(0)
 
 const selected = ref(state.gameTyp)
 const period = ref(state.period)
+const homeTeamName = ref(state.homeTeam)
+const awayTeamName = ref(state.awayTeam)
 
 const nrHome = ref('')
 const timeHome = ref(2)
 const nrAway = ref('')
 const timeAway = ref(2)
 
-watch(() => state.gameTyp, (val) => { selected.value = val})
-watch(() => state.period, (val) => { period.value = val})
+watch(() => state.gameTyp, (val) => { selected.value = val })
+watch(() => state.period, (val) => { period.value = val })
+watch(() => state.homeTeam, (val) => { homeTeamName.value = val })
+watch(() => state.awayTeam, (val) => { awayTeamName.value = val })
 
 function setClock(){
   const ms = (Number(mm.value)*60 + Number(ss.value)) * 1000
@@ -87,13 +91,10 @@ function onKey(e) {
 }
 
 onMounted(() => {
-  initBroadcast()
+  initSocket()
   
   window.addEventListener('keydown', onKey, {passive: false});
   window.addEventListener('beforeunload', beforeUnloadHandler);
-  
-  send({ type: 'REQUEST_HOME_PENALTIES' })
-  send({ type: 'REQUEST_AWAY_PENALTIES' })
 })
 
 onUnmounted(() => {
