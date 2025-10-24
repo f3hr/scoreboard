@@ -4,6 +4,7 @@ import { dirname, extname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { performance } from 'node:perf_hooks'
 import { WebSocketServer } from 'ws'
+import { config as loadEnv } from 'dotenv'
 
 import {
   createInitialState,
@@ -11,6 +12,7 @@ import {
   applyAction,
 } from './src/shared/scoreboard.js'
 
+loadEnv()
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DIST_DIR = resolve(__dirname, 'dist')
 const PORT = Number(process.env.PORT) || 8080

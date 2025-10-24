@@ -20,7 +20,12 @@ Ein browserbasiertes Scoreboard-Overlay mit passender Controller-Oberflaeche fue
    ```bash
    npm install
    ```
-2. **Dev-Server starten**
+2. **.env anlegen** (optional, Port etc.)
+   ```bash
+   cp .env.example .env
+   # PORT=8090 usw. eintragen
+   ```
+3. **Dev-Server starten**
    ```bash
    npm run dev
    ```
@@ -31,7 +36,7 @@ Ein browserbasiertes Scoreboard-Overlay mit passender Controller-Oberflaeche fue
 - `npm run dev` - startet Vite mit Hot Module Replacement.
 - `npm run build` - erzeugt ein Produktionsbundle in `dist/`.
 - `npm run preview` - dient zur lokalen Vorschau des Produktionsbundles.
-- `npm run serve` - baut das Bundle und startet einen Node-Server mit WebSocket-Anbindung (Port 8080).
+- `npm run serve` - baut das Bundle und startet einen Node-Server mit WebSocket-Anbindung (Port aus `.env`, Default 8080).
 
 ## Projektstruktur
 ```
