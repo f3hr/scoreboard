@@ -205,8 +205,8 @@ server.on('upgrade', (request, socket, head) => {
 })
 
 server.listen(PORT, () => {
-  console.log(`Controller on http://127.0.0.1:${PORT}/controller.html`)
   console.log(`WebSocket path ${SOCKET_PATH}`)
+  console.log(`Controller: http://127.0.0.1:${PORT}/controller.html`)
 })
 
 async function gracefulShutdown(signal) {
