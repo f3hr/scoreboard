@@ -1,7 +1,37 @@
+/**
+ * @typedef {Object} Penalty
+ * @property {string} id
+ * @property {string|number} player
+ * @property {number} durationMs
+ * @property {number} remainingMs
+ */
+
+/**
+ * @typedef {Object} ScoreboardState
+ * @property {string} gameTyp
+ * @property {string} homeTeam
+ * @property {number} home
+ * @property {Penalty[]} homePenalties
+ * @property {string} awayTeam
+ * @property {number} away
+ * @property {Penalty[]} awayPenalties
+ * @property {string|number} period
+ * @property {number} clockMs
+ * @property {boolean} running
+ */
+
+/**
+ * @typedef {{ type: string, payload?: any }} ScoreboardAction
+ */
+
 export const DEFAULT_CLOCK_MS = 20 * 60 * 1000
 export const MAX_CLOCK_MS = DEFAULT_CLOCK_MS
 export const PENALTY_LIMIT = 3
 
+/**
+ * @param {number|string} ms
+ * @returns {string}
+ */
 export function formatMillis(ms) {
   const clamped = Math.max(0, Math.round(Number(ms) || 0))
   const minutes = Math.floor(clamped / 60000)
@@ -9,6 +39,7 @@ export function formatMillis(ms) {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
 
+/** @returns {ScoreboardState} */
 export function createInitialState() {
   return {
     gameTyp: '',
@@ -24,6 +55,10 @@ export function createInitialState() {
   }
 }
 
+/**
+ * @param {Penalty} penalty
+ * @returns {Penalty}
+ */
 export function clonePenalty(penalty) {
   return {
     id: penalty.id,
@@ -33,6 +68,10 @@ export function clonePenalty(penalty) {
   }
 }
 
+/**
+ * @param {any} raw
+ * @returns {Penalty|null}
+ */
 export function normalizePenalty(raw) {
   if (!raw || typeof raw !== 'object') return null
   const durationMs = Number(raw.durationMs)
@@ -53,6 +92,10 @@ export function normalizePenalty(raw) {
   }
 }
 
+/**
+ * @param {ScoreboardState} state
+ * @returns {ScoreboardState}
+ */
 export function serializeState(state) {
   return {
     gameTyp: state.gameTyp,
@@ -68,6 +111,10 @@ export function serializeState(state) {
   }
 }
 
+/**
+ * @param {ScoreboardState} target
+ * @param {Partial<ScoreboardState>} snapshot
+ */
 export function assignState(target, snapshot) {
   if (!snapshot) return
   target.gameTyp = snapshot.gameTyp ?? ''
@@ -90,12 +137,21 @@ export function assignState(target, snapshot) {
   target.running = Boolean(snapshot.running)
 }
 
+/**
+ * @param {unknown} value
+ * @returns {number}
+ */
 function clampClock(value) {
   const numeric = Number(value)
   if (!Number.isFinite(numeric)) return 0
   return Math.max(0, Math.round(numeric))
 }
 
+/**
+ * @param {Penalty[]} list
+ * @param {number} deltaMs
+ * @returns {boolean}
+ */
 function decreasePenalties(list, deltaMs) {
   if (!Array.isArray(list) || list.length === 0) return false
   let changed = false
@@ -115,6 +171,11 @@ function decreasePenalties(list, deltaMs) {
   return changed
 }
 
+/**
+ * @param {ScoreboardState} state
+ * @param {number} deltaMs
+ * @returns {{changed: boolean, error?: string}}
+ */
 export function applyClockTick(state, deltaMs) {
   const delta = Number(deltaMs)
   if (!Number.isFinite(delta) || delta <= 0) return { changed: false }
@@ -136,6 +197,11 @@ export function applyClockTick(state, deltaMs) {
   return { changed }
 }
 
+/**
+ * @param {ScoreboardState} state
+ * @param {ScoreboardAction} action
+ * @returns {{changed: boolean, error?: string}}
+ */
 export function applyAction(state, action) {
   if (!state || !action) return { changed: false }
   const { type, payload } = action

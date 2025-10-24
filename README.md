@@ -20,10 +20,13 @@ Ein browserbasiertes Scoreboard-Overlay mit passender Controller-Oberflaeche fue
    ```bash
    npm install
    ```
-2. **.env anlegen** (optional, Port etc.)
+2. **.env anlegen** (optional, Port/Socket-Pfad; Datei ist gitignored)
    ```bash
    cp .env.example .env
-   # PORT=8090 usw. eintragen
+   # PORT=8090
+   # SOCKET_PATH=/socket
+   # VITE_SOCKET_PATH=/socket
+   # MAX_MESSAGE_BYTES=2048
    ```
 3. **Dev-Server starten**
    ```bash
@@ -37,6 +40,7 @@ Ein browserbasiertes Scoreboard-Overlay mit passender Controller-Oberflaeche fue
 - `npm run build` - erzeugt ein Produktionsbundle in `dist/`.
 - `npm run preview` - dient zur lokalen Vorschau des Produktionsbundles.
 - `npm run serve` - baut das Bundle und startet einen Node-Server mit WebSocket-Anbindung (Port aus `.env`, Default 8080).
+- `npm test` - laeuft Vitest fuer die Kernlogik (`src/shared/scoreboard.js`).
 
 ## Projektstruktur
 ```

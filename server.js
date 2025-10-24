@@ -16,6 +16,8 @@ loadEnv()
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DIST_DIR = resolve(__dirname, 'dist')
 const PORT = Number(process.env.PORT) || 8080
+const SOCKET_PATH = process.env.SOCKET_PATH || process.env.VITE_SOCKET_PATH || '/socket'
+const MAX_MESSAGE_BYTES = Number(process.env.MAX_MESSAGE_BYTES) || 1024
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -37,6 +39,7 @@ state.awayPenalties = []
 
 const clients = new Set()
 let lastTickTs = null
+let shuttingDown = false
 
 const server = createServer(serveStatic)
 const wss = new WebSocketServer({ noServer: true })
@@ -132,6 +135,16 @@ function broadcastState() {
 }
 
 function handleSocketMessage(socket, raw) {
+  const rawSize =
+    typeof raw === 'string'
+      ? Buffer.byteLength(raw)
+      : raw?.byteLength ?? raw?.length ?? 0
+  if (rawSize > MAX_MESSAGE_BYTES) {
+    socket.send(JSON.stringify({ type: 'ERROR', error: 'Nachricht zu gross' }))
+    socket.close(1009, 'payload too large')
+    return
+  }
+
   const message = parseMessage(raw)
   if (!message) {
     socket.send(JSON.stringify({ type: 'ERROR', error: 'Ungueltige Nachricht' }))
@@ -175,8 +188,12 @@ wss.on('connection', (socket) => {
 
 server.on('upgrade', (request, socket, head) => {
   try {
+    if (shuttingDown) {
+      socket.destroy()
+      return
+    }
     const { pathname } = new URL(request.url || '/', `http://${request.headers.host}`)
-    if (pathname === '/socket') {
+    if (pathname === SOCKET_PATH) {
       wss.handleUpgrade(request, socket, head, (ws) => wss.emit('connection', ws, request))
     } else {
       socket.destroy()
@@ -189,4 +206,27 @@ server.on('upgrade', (request, socket, head) => {
 
 server.listen(PORT, () => {
   console.log(`Controller on http://127.0.0.1:${PORT}/controller.html`)
+  console.log(`WebSocket path ${SOCKET_PATH}`)
+})
+
+async function gracefulShutdown(signal) {
+  if (shuttingDown) return
+  shuttingDown = true
+  console.log(`\n${signal} received, shutting down...`)
+  for (const client of clients) {
+    try {
+      client.close(1001, 'server shutdown')
+    } catch (err) {
+      console.error('Close client error', err)
+    }
+  }
+  wss.close?.()
+  server.close(() => {
+    process.exit(0)
+  })
+  setTimeout(() => process.exit(0), 5000).unref()
+}
+
+['SIGINT', 'SIGTERM'].forEach((sig) => {
+  process.on(sig, () => gracefulShutdown(sig))
 })

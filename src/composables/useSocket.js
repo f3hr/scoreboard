@@ -1,7 +1,7 @@
 import { assignState, applyAction, serializeState } from '../shared/scoreboard'
 import { state } from './useStore'
 
-const WS_ENDPOINT = '/socket'
+const WS_ENDPOINT = import.meta.env?.VITE_SOCKET_PATH || '/socket'
 const RECONNECT_DELAY_MS = 2000
 const MAX_SOCKET_FAILURES = 5
 
