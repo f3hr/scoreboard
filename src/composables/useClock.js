@@ -1,11 +1,7 @@
 import { state } from './useStore'
 import { send } from './useSocket'
 
-const isTopLevelWindow = typeof window !== 'undefined' && window === window.top
-
 export function startClock() {
-  if (!isTopLevelWindow) return
-
   let lastTime = null
 
   function tick(now) {
