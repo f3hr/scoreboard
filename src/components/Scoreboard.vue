@@ -20,6 +20,7 @@ import { DEFAULT_OPPONENT_COLOR } from '../shared/scoreboard'
           <div class="home-team devils">
             <span class="team-name" id="home-team">{{state.homeTeam}}</span>
             <span class="score" id="home-score">{{ state.home }}</span>
+            <span class="empty-net">EMPTY NET</span>
           </div>
 
           <!-- Penalties -->
@@ -40,6 +41,7 @@ import { DEFAULT_OPPONENT_COLOR } from '../shared/scoreboard'
           <div class="guest-team opponent" :style="{ background: state.opponentColor || DEFAULT_OPPONENT_COLOR }">
             <span class="score" id="guest-score">{{ state.away }}</span>
             <span class="team-name" id="guest-team">{{state.awayTeam}}</span>
+            <span class="empty-net-right">EMPTY NET</span>
           </div>
 
           <!-- Penalties -->

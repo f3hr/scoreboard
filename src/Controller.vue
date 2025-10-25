@@ -150,6 +150,7 @@ onUnmounted(() => {
       <label>Away Team </label>
       <input v-model="awayTeamName" type="text" style="width: 12rem;">
       <button @click="send({type: 'SET_AWAY-TEAM', payload: awayTeamName})">Set</button> 
+      
       <input 
         id="opponent-color" type="color" :value="opponentColor"
         @input="onOpponentColorInput($event.target.value)"
@@ -161,6 +162,10 @@ onUnmounted(() => {
       <button @click="send({type:'HOME-'})">Home-</button>
       <button @click="send({type:'AWAY+'})">Away+</button>
       <button @click="send({type:'AWAY-'})">Away-</button>
+    </section>
+
+    <section>
+      <!-- Empty Net Toogle Here -->
     </section>
 
     <section>
