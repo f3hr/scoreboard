@@ -19,6 +19,8 @@
  * @property {number} clockMs
  * @property {boolean} running
  * @property {string} opponentColor
+ * @property {boolean} homeEmptyNetVisible
+ * @property {boolean} awayEmptyNetVisible
  */
 
 /**
@@ -55,6 +57,8 @@ export function createInitialState() {
     clockMs: DEFAULT_CLOCK_MS,
     running: false,
     opponentColor: DEFAULT_OPPONENT_COLOR,
+    homeEmptyNetVisible: false,
+    awayEmptyNetVisible: false,
   }
 }
 
@@ -112,6 +116,8 @@ export function serializeState(state) {
     clockMs: state.clockMs,
     running: state.running,
     opponentColor: state.opponentColor,
+    homeEmptyNetVisible: state.homeEmptyNetVisible,
+    awayEmptyNetVisible: state.awayEmptyNetVisible,
   }
 }
 
@@ -140,6 +146,8 @@ export function assignState(target, snapshot) {
   target.clockMs = Number(snapshot.clockMs) || 0
   target.running = Boolean(snapshot.running)
   target.opponentColor = snapshot.opponentColor || DEFAULT_OPPONENT_COLOR
+  target.homeEmptyNetVisible = Boolean(snapshot.homeEmptyNetVisible)
+  target.awayEmptyNetVisible = Boolean(snapshot.awayEmptyNetVisible)
 }
 
 /**
@@ -413,6 +421,20 @@ export function applyAction(state, action) {
       const next = sanitizeHexColor(payload)
       if (!next || state.opponentColor === next) return { changed: false }
       state.opponentColor = next
+      changed = true
+      break
+    }
+    case 'SET_HOME_EMPTY_NET': {
+      const next = Boolean(payload)
+      if (state.homeEmptyNetVisible === next) return { changed: false }
+      state.homeEmptyNetVisible = next
+      changed = true
+      break
+    }
+    case 'SET_AWAY_EMPTY_NET': {
+      const next = Boolean(payload)
+      if (state.awayEmptyNetVisible === next) return { changed: false }
+      state.awayEmptyNetVisible = next
       changed = true
       break
     }

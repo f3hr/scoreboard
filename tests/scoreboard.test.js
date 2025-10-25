@@ -80,4 +80,24 @@ describe('applyAction', () => {
     applyAction(state, { type: 'SET_OPPONENT_COLOR', payload: ' #fff ' })
     expect(state.opponentColor).toBe('#fff')
   })
+
+  it('toggles empty net flags via dedicated actions', () => {
+    expect(state.homeEmptyNetVisible).toBe(false)
+    expect(state.awayEmptyNetVisible).toBe(false)
+
+    const homeToggle = applyAction(state, { type: 'SET_HOME_EMPTY_NET', payload: true })
+    expect(homeToggle.changed).toBe(true)
+    expect(state.homeEmptyNetVisible).toBe(true)
+
+    const homeNoop = applyAction(state, { type: 'SET_HOME_EMPTY_NET', payload: true })
+    expect(homeNoop.changed).toBe(false)
+
+    const awayToggle = applyAction(state, { type: 'SET_AWAY_EMPTY_NET', payload: 1 })
+    expect(awayToggle.changed).toBe(true)
+    expect(state.awayEmptyNetVisible).toBe(true)
+
+    const awayOff = applyAction(state, { type: 'SET_AWAY_EMPTY_NET', payload: 0 })
+    expect(awayOff.changed).toBe(true)
+    expect(state.awayEmptyNetVisible).toBe(false)
+  })
 })

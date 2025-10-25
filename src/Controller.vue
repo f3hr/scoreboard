@@ -12,6 +12,8 @@ const period = ref(state.period)
 const homeTeamName = ref(state.homeTeam)
 const awayTeamName = ref(state.awayTeam)
 const opponentColor = ref(state.opponentColor || DEFAULT_OPPONENT_COLOR)
+const homeEmptyNet = ref(Boolean(state.homeEmptyNetVisible))
+const awayEmptyNet = ref(Boolean(state.awayEmptyNetVisible))
 
 const nrHome = ref('')
 const timeHome = ref(2)
@@ -23,6 +25,8 @@ watch(() => state.period, (val) => { period.value = val })
 watch(() => state.homeTeam, (val) => { homeTeamName.value = val })
 watch(() => state.awayTeam, (val) => { awayTeamName.value = val })
 watch(() => state.opponentColor, (val) => { opponentColor.value = val || DEFAULT_OPPONENT_COLOR })
+watch(() => state.homeEmptyNetVisible, (val) => { homeEmptyNet.value = Boolean(val) })
+watch(() => state.awayEmptyNetVisible, (val) => { awayEmptyNet.value = Boolean(val) })
 
 function setClock(){
   const ms = (Number(mm.value)*60 + Number(ss.value)) * 1000
@@ -75,6 +79,18 @@ function onOpponentColorInput(value) {
   if (!next) return
   opponentColor.value = next
   send({ type: 'SET_OPPONENT_COLOR', payload: next })
+}
+
+function onToggleHomeEmptyNet(event) {
+  const next = Boolean(event?.target?.checked ?? homeEmptyNet.value)
+  homeEmptyNet.value = next
+  send({ type: 'SET_HOME_EMPTY_NET', payload: next })
+}
+
+function onToggleAwayEmptyNet(event) {
+  const next = Boolean(event?.target?.checked ?? awayEmptyNet.value)
+  awayEmptyNet.value = next
+  send({ type: 'SET_AWAY_EMPTY_NET', payload: next })
 }
 
 const keymap = {
@@ -150,7 +166,7 @@ onUnmounted(() => {
       <label>Away Team </label>
       <input v-model="awayTeamName" type="text" style="width: 12rem;">
       <button @click="send({type: 'SET_AWAY-TEAM', payload: awayTeamName})">Set</button> 
-      
+      <label for="opponent-color" style="margin-left: 0.5rem;">Farbe</label>
       <input 
         id="opponent-color" type="color" :value="opponentColor"
         @input="onOpponentColorInput($event.target.value)"
@@ -164,8 +180,15 @@ onUnmounted(() => {
       <button @click="send({type:'AWAY-'})">Away-</button>
     </section>
 
-    <section>
-      <!-- Empty Net Toogle Here -->
+    <section style="gap: 1rem;">
+      <div style="display: flex; align-items: center;">
+        <label>Home Empty Net</label>
+        <input type="checkbox" :checked="homeEmptyNet" @change="onToggleHomeEmptyNet" style="width: 1rem;"> 
+      </div>
+      <div style="display: flex; align-items: center;">
+        <label>Away Empty Net</label>
+        <input type="checkbox" :checked="awayEmptyNet" @change="onToggleAwayEmptyNet" style="width: 1rem;">
+      </div>
     </section>
 
     <section>
