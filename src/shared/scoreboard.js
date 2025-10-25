@@ -18,6 +18,7 @@
  * @property {string|number} period
  * @property {number} clockMs
  * @property {boolean} running
+ * @property {string} opponentColor
  */
 
 /**
@@ -27,6 +28,7 @@
 export const DEFAULT_CLOCK_MS = 20 * 60 * 1000
 export const MAX_CLOCK_MS = DEFAULT_CLOCK_MS
 export const PENALTY_LIMIT = 3
+export const DEFAULT_OPPONENT_COLOR = '#464646'
 
 /**
  * @param {number|string} ms
@@ -52,6 +54,7 @@ export function createInitialState() {
     period: 1,
     clockMs: DEFAULT_CLOCK_MS,
     running: false,
+    opponentColor: DEFAULT_OPPONENT_COLOR,
   }
 }
 
@@ -108,6 +111,7 @@ export function serializeState(state) {
     period: state.period,
     clockMs: state.clockMs,
     running: state.running,
+    opponentColor: state.opponentColor,
   }
 }
 
@@ -135,6 +139,7 @@ export function assignState(target, snapshot) {
   target.period = snapshot.period ?? 1
   target.clockMs = Number(snapshot.clockMs) || 0
   target.running = Boolean(snapshot.running)
+  target.opponentColor = snapshot.opponentColor || DEFAULT_OPPONENT_COLOR
 }
 
 /**
@@ -145,6 +150,19 @@ function clampClock(value) {
   const numeric = Number(value)
   if (!Number.isFinite(numeric)) return 0
   return Math.max(0, Math.round(numeric))
+}
+
+/**
+ * @param {string} value
+ * @returns {string|null}
+ */
+function sanitizeHexColor(value) {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(trimmed)) {
+    return trimmed.toLowerCase()
+  }
+  return null
 }
 
 /**
@@ -391,6 +409,13 @@ export function applyAction(state, action) {
     }
     case 'CLOCK_TICK':
       return applyClockTick(state, payload)
+    case 'SET_OPPONENT_COLOR': {
+      const next = sanitizeHexColor(payload)
+      if (!next || state.opponentColor === next) return { changed: false }
+      state.opponentColor = next
+      changed = true
+      break
+    }
     default:
       return { changed: false }
   }

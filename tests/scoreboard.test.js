@@ -3,6 +3,7 @@ import {
   createInitialState,
   applyAction,
   PENALTY_LIMIT,
+  DEFAULT_OPPONENT_COLOR,
 } from '../src/shared/scoreboard.js'
 
 let state
@@ -52,5 +53,31 @@ describe('applyAction', () => {
     expect(result.changed).toBe(true)
     expect(state.clockMs).toBe(0)
     expect(state.running).toBe(false)
+  })
+
+  it('updates opponent color only for valid hex values', () => {
+    expect(state.opponentColor).toBe(DEFAULT_OPPONENT_COLOR)
+    const valid = applyAction(state, { type: 'SET_OPPONENT_COLOR', payload: '#abcdef' })
+    expect(valid.changed).toBe(true)
+    expect(state.opponentColor).toBe('#abcdef')
+
+    const invalid = applyAction(state, { type: 'SET_OPPONENT_COLOR', payload: 'blue' })
+    expect(invalid.changed).toBe(false)
+    expect(state.opponentColor).toBe('#abcdef')
+
+    const noop = applyAction(state, { type: 'SET_OPPONENT_COLOR', payload: '#abcdef' })
+    expect(noop.changed).toBe(false)
+
+    applyAction(state, { type: 'SET_OPPONENT_COLOR', payload: null })
+    expect(state.opponentColor).toBe('#abcdef')
+
+    applyAction(state, { type: 'SET_OPPONENT_COLOR', payload: '#123456' })
+    expect(state.opponentColor).toBe('#123456')
+
+    applyAction(state, { type: 'SET_OPPONENT_COLOR', payload: '#123' })
+    expect(state.opponentColor).toBe('#123')
+
+    applyAction(state, { type: 'SET_OPPONENT_COLOR', payload: ' #fff ' })
+    expect(state.opponentColor).toBe('#fff')
   })
 })

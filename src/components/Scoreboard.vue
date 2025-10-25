@@ -1,5 +1,6 @@
 <script setup>
 import { state, clockText, formatPenaltyTime } from '../composables/useStore'
+import { DEFAULT_OPPONENT_COLOR } from '../shared/scoreboard'
 </script>
 
 <template>
@@ -36,7 +37,7 @@ import { state, clockText, formatPenaltyTime } from '../composables/useStore'
         <div class="grid-with-penalties_guest">
           
           <!-- Team Name, Score -->
-          <div class="guest-team opponent">
+          <div class="guest-team opponent" :style="{ background: state.opponentColor || DEFAULT_OPPONENT_COLOR }">
             <span class="score" id="guest-score">{{ state.away }}</span>
             <span class="team-name" id="guest-team">{{state.awayTeam}}</span>
           </div>

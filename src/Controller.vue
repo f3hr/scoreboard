@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { send, initSocket } from './composables/useSocket'
 import { state, formatPenaltyTime } from './composables/useStore'
+import { DEFAULT_OPPONENT_COLOR } from './shared/scoreboard'
 
 const mm = ref(20)
 const ss = ref(0)
@@ -10,6 +11,7 @@ const selected = ref(state.gameTyp)
 const period = ref(state.period)
 const homeTeamName = ref(state.homeTeam)
 const awayTeamName = ref(state.awayTeam)
+const opponentColor = ref(state.opponentColor || DEFAULT_OPPONENT_COLOR)
 
 const nrHome = ref('')
 const timeHome = ref(2)
@@ -20,6 +22,7 @@ watch(() => state.gameTyp, (val) => { selected.value = val })
 watch(() => state.period, (val) => { period.value = val })
 watch(() => state.homeTeam, (val) => { homeTeamName.value = val })
 watch(() => state.awayTeam, (val) => { awayTeamName.value = val })
+watch(() => state.opponentColor, (val) => { opponentColor.value = val || DEFAULT_OPPONENT_COLOR })
 
 function setClock(){
   const ms = (Number(mm.value)*60 + Number(ss.value)) * 1000
@@ -67,6 +70,13 @@ function adjustAwayPenalty(idx, deltaSeconds) {
   send({ type: 'ADJUST_PENALTY_AWAY', payload: { index: idx, deltaMs: deltaSeconds * 1000 } })
 }
 
+function onOpponentColorInput(value) {
+  const next = typeof value === 'string' ? value : opponentColor.value
+  if (!next) return
+  opponentColor.value = next
+  send({ type: 'SET_OPPONENT_COLOR', payload: next })
+}
+
 const keymap = {
   ArrowLeft:  { type: 'RM_SEC' },
   ArrowRight: { type: 'ADD_SEC' },
@@ -107,7 +117,7 @@ onUnmounted(() => {
 <template>
   <main>
     
-    <section style="display: flex; flex-direction: column;">
+    <div>
 
       <iframe src="../index.html" style="width: 150%;"></iframe>
 
@@ -119,7 +129,7 @@ onUnmounted(() => {
         <p>"ArrowUp" +5s</p>
         <p>"ArrowDown" -5s</p>
       </div>
-    </section>
+    </div>
     
     <section>
       <select v-model="selected" @change="send({ type: 'SET_GAME-TYP', payload: selected})">
@@ -139,7 +149,11 @@ onUnmounted(() => {
     <section>
       <label>Away Team </label>
       <input v-model="awayTeamName" type="text" style="width: 12rem;">
-      <button @click="send({type: 'SET_AWAY-TEAM', payload: awayTeamName})">Set</button>
+      <button @click="send({type: 'SET_AWAY-TEAM', payload: awayTeamName})">Set</button> 
+      <input 
+        id="opponent-color" type="color" :value="opponentColor"
+        @input="onOpponentColorInput($event.target.value)"
+      >
     </section>
 
     <section>
@@ -204,6 +218,11 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+  section {
+    display: flex; 
+    align-items: center;
+    gap: 4px;
+  }
   p {
     background-color: rgb(58, 58, 58);
     color: white; 
