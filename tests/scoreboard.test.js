@@ -4,6 +4,7 @@ import {
   applyAction,
   PENALTY_LIMIT,
   DEFAULT_OPPONENT_COLOR,
+  MAX_CLOCK_MS,
 } from '../src/shared/scoreboard.js'
 
 let state
@@ -53,6 +54,26 @@ describe('applyAction', () => {
     expect(result.changed).toBe(true)
     expect(state.clockMs).toBe(0)
     expect(state.running).toBe(false)
+  })
+
+  it('supports toggling clock direction to count up', () => {
+    applyAction(state, { type: 'SET_CLOCK', payload: 0 })
+    const toggle = applyAction(state, { type: 'SET_CLOCK_DIRECTION', payload: false })
+    expect(toggle.changed).toBe(true)
+    expect(state.clockCountsDown).toBe(false)
+
+    applyAction(state, { type: 'RUN' })
+    applyAction(state, { type: 'CLOCK_TICK', payload: 1000 })
+    expect(state.clockMs).toBe(1000)
+    expect(state.running).toBe(true)
+
+    applyAction(state, { type: 'CLOCK_TICK', payload: MAX_CLOCK_MS })
+    expect(state.clockMs).toBe(MAX_CLOCK_MS)
+    expect(state.running).toBe(false)
+
+    const back = applyAction(state, { type: 'SET_CLOCK_DIRECTION', payload: true })
+    expect(back.changed).toBe(true)
+    expect(state.clockCountsDown).toBe(true)
   })
 
   it('updates opponent color only for valid hex values', () => {

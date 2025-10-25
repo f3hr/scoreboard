@@ -14,6 +14,7 @@ const awayTeamName = ref(state.awayTeam)
 const opponentColor = ref(state.opponentColor || DEFAULT_OPPONENT_COLOR)
 const homeEmptyNet = ref(Boolean(state.homeEmptyNetVisible))
 const awayEmptyNet = ref(Boolean(state.awayEmptyNetVisible))
+const clockCountsDown = ref(state.clockCountsDown ?? true)
 
 const nrHome = ref('')
 const timeHome = ref(2)
@@ -27,6 +28,7 @@ watch(() => state.awayTeam, (val) => { awayTeamName.value = val })
 watch(() => state.opponentColor, (val) => { opponentColor.value = val || DEFAULT_OPPONENT_COLOR })
 watch(() => state.homeEmptyNetVisible, (val) => { homeEmptyNet.value = Boolean(val) })
 watch(() => state.awayEmptyNetVisible, (val) => { awayEmptyNet.value = Boolean(val) })
+watch(() => state.clockCountsDown, (val) => { clockCountsDown.value = val === undefined ? true : Boolean(val) })
 
 function setClock(){
   const ms = (Number(mm.value)*60 + Number(ss.value)) * 1000
@@ -91,6 +93,12 @@ function onToggleAwayEmptyNet(event) {
   const next = Boolean(event?.target?.checked ?? awayEmptyNet.value)
   awayEmptyNet.value = next
   send({ type: 'SET_AWAY_EMPTY_NET', payload: next })
+}
+
+function onToggleClockDirection(event) {
+  const next = Boolean(event?.target?.checked ?? clockCountsDown.value)
+  clockCountsDown.value = next
+  send({ type: 'SET_CLOCK_DIRECTION', payload: next })
 }
 
 const keymap = {
@@ -204,6 +212,8 @@ onUnmounted(() => {
       <input v-model="ss" type="number" min="0" max="59">
       <button @click="setClock">Set</button>
       <button @click="send({type:'RESET_CLOCK'})">Reset</button>
+      <label style="margin-left: 8px;">Countdown?</label>
+      <input type="checkbox" :checked="clockCountsDown" @change="onToggleClockDirection" style="width: 1rem;">
     </section>
 
     <section>

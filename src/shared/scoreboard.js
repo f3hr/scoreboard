@@ -21,6 +21,7 @@
  * @property {string} opponentColor
  * @property {boolean} homeEmptyNetVisible
  * @property {boolean} awayEmptyNetVisible
+ * @property {boolean} clockCountsDown
  */
 
 /**
@@ -59,6 +60,7 @@ export function createInitialState() {
     opponentColor: DEFAULT_OPPONENT_COLOR,
     homeEmptyNetVisible: false,
     awayEmptyNetVisible: false,
+    clockCountsDown: true,
   }
 }
 
@@ -118,6 +120,7 @@ export function serializeState(state) {
     opponentColor: state.opponentColor,
     homeEmptyNetVisible: state.homeEmptyNetVisible,
     awayEmptyNetVisible: state.awayEmptyNetVisible,
+    clockCountsDown: state.clockCountsDown,
   }
 }
 
@@ -148,6 +151,7 @@ export function assignState(target, snapshot) {
   target.opponentColor = snapshot.opponentColor || DEFAULT_OPPONENT_COLOR
   target.homeEmptyNetVisible = Boolean(snapshot.homeEmptyNetVisible)
   target.awayEmptyNetVisible = Boolean(snapshot.awayEmptyNetVisible)
+  target.clockCountsDown = snapshot.clockCountsDown !== undefined ? Boolean(snapshot.clockCountsDown) : true
 }
 
 /**
@@ -207,7 +211,13 @@ export function applyClockTick(state, deltaMs) {
   if (!Number.isFinite(delta) || delta <= 0) return { changed: false }
   if (!state.running) return { changed: false }
 
-  const nextClock = Math.max(0, state.clockMs - delta)
+  let nextClock
+  if (state.clockCountsDown) {
+    nextClock = Math.max(0, state.clockMs - delta)
+  } else {
+    nextClock = Math.min(MAX_CLOCK_MS, state.clockMs + delta)
+  }
+
   let changed = nextClock !== state.clockMs
   state.clockMs = nextClock
 
@@ -215,7 +225,12 @@ export function applyClockTick(state, deltaMs) {
   const awayChanged = decreasePenalties(state.awayPenalties, delta)
   changed = changed || homeChanged || awayChanged
 
-  if (state.clockMs === 0 && state.running) {
+  if (state.clockCountsDown) {
+    if (state.clockMs === 0 && state.running) {
+      state.running = false
+      changed = true
+    }
+  } else if (state.clockMs === MAX_CLOCK_MS && state.running) {
     state.running = false
     changed = true
   }
@@ -415,8 +430,6 @@ export function applyAction(state, action) {
       changed = true
       break
     }
-    case 'CLOCK_TICK':
-      return applyClockTick(state, payload)
     case 'SET_OPPONENT_COLOR': {
       const next = sanitizeHexColor(payload)
       if (!next || state.opponentColor === next) return { changed: false }
@@ -438,6 +451,15 @@ export function applyAction(state, action) {
       changed = true
       break
     }
+    case 'SET_CLOCK_DIRECTION': {
+      const next = Boolean(payload)
+      if (state.clockCountsDown === next) return { changed: false }
+      state.clockCountsDown = next
+      changed = true
+      break
+    }
+    case 'CLOCK_TICK':
+      return applyClockTick(state, payload)
     default:
       return { changed: false }
   }
