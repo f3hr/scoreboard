@@ -46,7 +46,7 @@ const wss = new WebSocketServer({ noServer: true })
 
 async function serveStatic(req, res) {
   try {
-    const url = new URL(req.url || '/', `http://${req.headers.host}`)
+    const url = new URL(req.url || '/', `http://${req.headers.host}`) // index.html als Fallback
     const file = await pickFile(url.pathname)
     const data = await fs.readFile(file)
     const type = MIME_TYPES[extname(file)] || 'application/octet-stream'

@@ -102,6 +102,8 @@ export function normalizePenalty(raw) {
 }
 
 /**
+ * sorgt dafür, dass nur Kopien der Straflisten verschickt werden 
+ * --> kein direkter Objektzugriff der Clients auf den Serverzustand
  * @param {ScoreboardState} state
  * @returns {ScoreboardState}
  */
