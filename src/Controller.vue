@@ -165,6 +165,10 @@ onUnmounted(() => {
     </section>
 
     <section>
+      
+    </section>
+
+    <section>
       <label>Home Team </label>
       <input v-model="homeTeamName" type="text" style="width: 12rem;">
       <button @click="send({type: 'SET_HOME-TEAM', payload: homeTeamName})">Set</button>
@@ -271,7 +275,7 @@ onUnmounted(() => {
     display:grid; 
     gap:12px; 
     grid-auto-rows:min-content; 
-    max-width:560px;
+    max-width:750px;
   }
   input {
     width: 3rem;

@@ -18,6 +18,7 @@ import { DEFAULT_OPPONENT_COLOR } from '../shared/scoreboard'
           
           <!-- Team Name, Score -->
           <div class="home-team devils">
+            <img class="team-logo"/>
             <span class="team-name" id="home-team">{{state.homeTeam}}</span>
             <span class="score" id="home-score">{{ state.home }}</span>
             <span v-if="state.homeEmptyNetVisible" class="empty-net">EMPTY NET</span>
@@ -41,6 +42,7 @@ import { DEFAULT_OPPONENT_COLOR } from '../shared/scoreboard'
           <div class="guest-team opponent" :style="{ background: state.opponentColor || DEFAULT_OPPONENT_COLOR }">
             <span class="score" id="guest-score">{{ state.away }}</span>
             <span class="team-name" id="guest-team">{{state.awayTeam}}</span>
+            <img class="team-logo"/>
             <span v-if="state.awayEmptyNetVisible" class="empty-net-right">EMPTY NET</span>
           </div>
 

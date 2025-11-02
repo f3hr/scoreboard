@@ -7,9 +7,9 @@
   --bg-color-logo: #f0f4ff;
   --bg-color-penalty: gold;
 
-  --sb-height: 80px;
-  --logo-width: 80px;
-  --team-width: 300px; 
+  --sb-height: 65px;
+  --logo-width: 65px;
+  --team-width: 400px; 
 
   --team-name-size: 24px;
   --score-size: 32px;
@@ -85,6 +85,12 @@ body {
   position: relative;
 }
 
+.team-logo {
+  width: var(--logo-width);
+  height: auto; 
+  background-color: white;
+}
+
 .team-name {
   font-size: var(--team-name-size);
 }
@@ -148,5 +154,6 @@ body {
 .time {
   width: 50px;
   background-color: var(--bg-color-logo);
-  padding-right: 32px;
+  padding-left: 8px;
+  padding-right: 24px;
 }
