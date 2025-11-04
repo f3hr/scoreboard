@@ -2,7 +2,7 @@
 import { state, clockText, formatPenaltyTime } from '../composables/useStore'
 import { DEFAULT_OPPONENT_COLOR } from '../shared/scoreboard'
 
-const HOME_LOGO_PATH = '/logos/reddevils-logo-farbig-2d.webp'
+const HOME_LOGO_PATH = '/logos/reddevils-logo-no-web-url.webp'
 </script>
 
 <template>
