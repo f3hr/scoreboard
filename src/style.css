@@ -8,7 +8,6 @@
   --bg-color-penalty: gold;
 
   --sb-height: 60px;
-  --logo-width: 60px;
   --team-logo-width: 70px;
   --team-width: 320px; 
 
@@ -52,20 +51,6 @@ body {
   display: none;
 }
 
-.logo-wrapper {
-  width: fit-content;
-  height: var(--sb-height);
-
-  background-color: var(--bg-color-logo);
-  
-  display: flex; 
-  flex-direction: row;
-  justify-items: center;
-  align-items: center;
-  
-  padding: 8px;
-}
-
 .team-logo-wrapper {
   width: fit-content;
   height: var(--sb-height);
@@ -80,9 +65,9 @@ body {
   padding: 8px;
 }
 
-.logo {
-  width: var(--logo-width);
-  height: auto;
+.team-logo {
+  width: var(--team-logo-width);
+  height: auto;   
 }
 
 .home-team, .guest-team {
@@ -98,12 +83,6 @@ body {
   font-family: var(--font-main);
 
   position: relative;
-}
-
-.team-logo {
-  width: var(--team-logo-width);
-  height: auto; 
-  
 }
 
 .team-name {

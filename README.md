@@ -84,7 +84,6 @@ Ein browserbasiertes Scoreboard-Overlay mit passender Controller-Oberflaeche fue
 
 ## Bedienung & Nachrichten
 - **Punktestand**: Buttons senden `HOME+/HOME-/AWAY+/AWAY-`.
-- **Spieltyp**: Dropdown verschickt `SET_GAME-TYP` mit dem ausgewaehlten SVG.
 - **Uhr**:
   - Uhrzeit setzen ueber Eingaben (`SET_CLOCK`)
   - Zuruecksetzen (`RESET_CLOCK`)

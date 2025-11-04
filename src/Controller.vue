@@ -7,7 +7,6 @@ import { DEFAULT_OPPONENT_COLOR } from './shared/scoreboard'
 const mm = ref(20)
 const ss = ref(0)
 
-const selected = ref(state.gameTyp)
 const period = ref(state.period)
 const homeTeamName = ref(state.homeTeam)
 const awayTeamName = ref(state.awayTeam)
@@ -22,7 +21,6 @@ const timeHome = ref(2)
 const nrAway = ref('')
 const timeAway = ref(2)
 
-watch(() => state.gameTyp, (val) => { selected.value = val })
 watch(() => state.period, (val) => { period.value = val })
 watch(() => state.homeTeam, (val) => { homeTeamName.value = val })
 watch(() => state.awayTeam, (val) => { awayTeamName.value = val })
@@ -247,15 +245,6 @@ onUnmounted(() => {
       </div>
     </div>
     
-    <section>
-      <select v-model="selected" @change="send({ type: 'SET_GAME-TYP', payload: selected})">
-        <option disabled value="">auswählen</option>
-        <option value="dfbl.svg" >1. FBL Damen</option>
-        <option value="fbl.svg">2. FBL Herren</option>
-        <option value="pokal.svg">FD Pokal</option>
-      </select>
-    </section>
-
     <section style="display: flex; flex-direction: column; align-items: start;">
       <span>(nur png und webp)</span>
 
@@ -384,3 +373,5 @@ onUnmounted(() => {
     gap: 4px;
   }
 </style>
+
+

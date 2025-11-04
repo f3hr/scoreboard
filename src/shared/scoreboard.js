@@ -8,7 +8,6 @@
 
 /**
  * @typedef {Object} ScoreboardState
- * @property {string} gameTyp
  * @property {string} homeTeam
  * @property {number} home
  * @property {Penalty[]} homePenalties
@@ -72,7 +71,6 @@ export function formatMillis(ms) {
 /** @returns {ScoreboardState} */
 export function createInitialState() {
   return {
-    gameTyp: '',
     homeTeam: 'Red Devils Wernigerode',
     home: 0,
     homePenalties: [],
@@ -135,7 +133,6 @@ export function normalizePenalty(raw) {
  */
 export function serializeState(state) {
   return {
-    gameTyp: state.gameTyp,
     homeTeam: state.homeTeam,
     home: state.home,
     homePenalties: state.homePenalties.map(clonePenalty),
@@ -159,7 +156,6 @@ export function serializeState(state) {
  */
 export function assignState(target, snapshot) {
   if (!snapshot) return
-  target.gameTyp = snapshot.gameTyp ?? ''
   target.homeTeam = snapshot.homeTeam ?? ''
   target.home = Number(snapshot.home) || 0
   if (Array.isArray(target.homePenalties)) {
@@ -279,14 +275,6 @@ export function applyAction(state, action) {
   let changed = false
 
   switch (type) {
-    case 'SET_GAME-TYP': {
-      const next = payload != null ? String(payload) : ''
-      if (state.gameTyp !== next) {
-        state.gameTyp = next
-        changed = true
-      }
-      break
-    }
     case 'SET_HOME-TEAM': {
       const next = payload != null ? String(payload) : ''
       if (state.homeTeam !== next) {

@@ -248,7 +248,6 @@ describe('Kompatibilitätstests', () => {
   it('accepts heterogeneous controller payloads and keeps conversions consistent', () => {
     const target = createInitialState()
     assignState(target, {
-      gameTyp: 'Finale',
       homeTeam: 'Devils',
       awayTeam: 'Bulls',
       home: '4',
@@ -268,7 +267,6 @@ describe('Kompatibilitätstests', () => {
       ],
     })
 
-    expect(target.gameTyp).toBe('Finale')
     expect(target.homeTeam).toBe('Devils')
     expect(target.awayTeam).toBe('Bulls')
     expect(target.home).toBe(4)

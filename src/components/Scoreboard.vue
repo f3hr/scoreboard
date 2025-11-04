@@ -11,10 +11,6 @@ const HOME_LOGO_PATH = '/logos/reddevils-logo-no-web-url.webp'
     
     <div class="scoreboard">
 
-      <div class="logo-wrapper">
-        <img v-if="state.gameTyp" :src="state.gameTyp" class="logo" id="gameTyp"/>
-      </div>
-
       <div class="team-logo-wrapper">
         <img :src="HOME_LOGO_PATH" alt="Home team logo" class="team-logo"/>
       </div>
