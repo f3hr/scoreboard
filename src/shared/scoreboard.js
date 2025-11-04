@@ -14,6 +14,7 @@
  * @property {Penalty[]} homePenalties
  * @property {string} awayTeam
  * @property {number} away
+ * @property {string} awayLogo
  * @property {Penalty[]} awayPenalties
  * @property {string|number} period
  * @property {number} clockMs
@@ -32,6 +33,30 @@ export const DEFAULT_CLOCK_MS = 20 * 60 * 1000
 export const MAX_CLOCK_MS = DEFAULT_CLOCK_MS
 export const PENALTY_LIMIT = 3
 export const DEFAULT_OPPONENT_COLOR = '#464646'
+const LOGO_ROOT = 'logos'
+const LOGO_SEGMENT_PATTERN = /^[0-9a-z._-]+$/i
+
+/**
+ * Ensures logo paths stay within the public logo directory.
+ * @param {unknown} value
+ * @returns {string}
+ */
+export function sanitizeLogoPath(value) {
+  if (typeof value !== 'string') return ''
+  const trimmed = value.trim()
+  if (!trimmed) return ''
+  const normalized = trimmed.replace(/\\/g, '/')
+  const segments = normalized.split('/').filter(Boolean)
+  if (segments.length < 2) return ''
+  if (segments[0] !== LOGO_ROOT) return ''
+  for (let i = 1; i < segments.length; i += 1) {
+    const segment = segments[i]
+    if (!segment || segment.startsWith('.') || !LOGO_SEGMENT_PATTERN.test(segment)) {
+      return ''
+    }
+  }
+  return segments.join('/')
+}
 
 /**
  * @param {number|string} ms
@@ -53,6 +78,7 @@ export function createInitialState() {
     homePenalties: [],
     awayTeam: '',
     away: 0,
+    awayLogo: '',
     awayPenalties: [],
     period: 1,
     clockMs: DEFAULT_CLOCK_MS,
@@ -115,6 +141,7 @@ export function serializeState(state) {
     homePenalties: state.homePenalties.map(clonePenalty),
     awayTeam: state.awayTeam,
     away: state.away,
+    awayLogo: sanitizeLogoPath(state.awayLogo),
     awayPenalties: state.awayPenalties.map(clonePenalty),
     period: state.period,
     clockMs: state.clockMs,
@@ -142,6 +169,7 @@ export function assignState(target, snapshot) {
   }
   target.awayTeam = snapshot.awayTeam ?? ''
   target.away = Number(snapshot.away) || 0
+  target.awayLogo = sanitizeLogoPath(snapshot.awayLogo)
   if (Array.isArray(target.awayPenalties)) {
     target.awayPenalties.splice(0, target.awayPenalties.length, ...(snapshot.awayPenalties || []).map(clonePenalty))
   } else {
@@ -429,6 +457,13 @@ export function applyAction(state, action) {
       if (next === entry.remainingMs) return { changed: false }
       entry.remainingMs = next
       if (entry.durationMs < next) entry.durationMs = next
+      changed = true
+      break
+    }
+    case 'SET_AWAY_LOGO': {
+      const next = sanitizeLogoPath(payload)
+      if (state.awayLogo === next) return { changed: false }
+      state.awayLogo = next
       changed = true
       break
     }

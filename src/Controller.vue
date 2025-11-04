@@ -15,6 +15,7 @@ const opponentColor = ref(state.opponentColor || DEFAULT_OPPONENT_COLOR)
 const homeEmptyNet = ref(Boolean(state.homeEmptyNetVisible))
 const awayEmptyNet = ref(Boolean(state.awayEmptyNetVisible))
 const clockCountsDown = ref(state.clockCountsDown ?? true)
+const awayLogo = ref(state.awayLogo || '')
 
 const nrHome = ref('')
 const timeHome = ref(2)
@@ -29,6 +30,97 @@ watch(() => state.opponentColor, (val) => { opponentColor.value = val || DEFAULT
 watch(() => state.homeEmptyNetVisible, (val) => { homeEmptyNet.value = Boolean(val) })
 watch(() => state.awayEmptyNetVisible, (val) => { awayEmptyNet.value = Boolean(val) })
 watch(() => state.clockCountsDown, (val) => { clockCountsDown.value = val === undefined ? true : Boolean(val) })
+watch(() => state.awayLogo, (val) => { awayLogo.value = val || '' })
+
+const LOGO_ENDPOINT = '/api/logos'
+const MAX_LOGO_BYTES = 750 * 1024
+const ALLOWED_LOGO_TYPES = new Set(['image/png', 'image/webp'])
+const ALLOWED_LOGO_EXTENSIONS = new Set(['png', 'webp'])
+
+function isAllowedLogoFile(file) {
+  if (!file) return false
+  const mime = typeof file.type === 'string' ? file.type.toLowerCase() : ''
+  if (ALLOWED_LOGO_TYPES.has(mime)) return true
+  const ext = file.name?.split('.')?.pop()?.toLowerCase() || ''
+  return ALLOWED_LOGO_EXTENSIONS.has(ext)
+}
+
+async function fileToBase64(file) {
+  const buffer = await file.arrayBuffer()
+  const bytes = new Uint8Array(buffer)
+  const chunkSize = 0x8000
+  let binary = ''
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize)
+    binary += String.fromCharCode(...chunk)
+  }
+  return btoa(binary)
+}
+
+function setAwayLogoValue(value) {
+  awayLogo.value = typeof value === 'string' ? value : ''
+}
+
+async function uploadAwayLogo(file) {
+  if (!file) return
+  if (!isAllowedLogoFile(file)) {
+    window.alert?.('Bitte nur PNG oder WebP Dateien auswaehlen.')
+    return
+  }
+  if (file.size > MAX_LOGO_BYTES) {
+    window.alert?.('Die Datei ist zu gross. Bitte ein Logo unter 750KB auswaehlen.')
+    return
+  }
+
+  try {
+    const data = await fileToBase64(file)
+    const response = await fetch(LOGO_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        team: 'away',
+        name: file.name,
+        mimeType: file.type,
+        data,
+      }),
+    })
+    const result = await response.json().catch(() => ({}))
+    if (!response.ok || typeof result?.path !== 'string') {
+      throw new Error(result?.error || 'Upload fehlgeschlagen')
+    }
+    setAwayLogoValue(result.path)
+  } catch (error) {
+    console.error('Logo upload failed', error)
+    window.alert?.('Logo konnte nicht hochgeladen werden.')
+  }
+}
+
+function resetFileInput(event) {
+  const target = event?.target
+  if (target && 'value' in target) {
+    target.value = ''
+  }
+}
+
+async function onAwayLogoFileChange(event) {
+  const file = event?.target?.files?.[0]
+  await uploadAwayLogo(file)
+  resetFileInput(event)
+}
+
+async function clearAwayLogo() {
+  try {
+    const response = await fetch(`${LOGO_ENDPOINT}?team=away`, { method: 'DELETE' })
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}))
+      throw new Error(result?.error || 'DELETE_FAILED')
+    }
+    setAwayLogoValue('')
+  } catch (error) {
+    console.error('Logo clear failed', error)
+    window.alert?.('Logo konnte nicht entfernt werden.')
+  }
+}
 
 function setClock(){
   const ms = (Number(mm.value)*60 + Number(ss.value)) * 1000
@@ -164,7 +256,14 @@ onUnmounted(() => {
       </select>
     </section>
 
-    <section>
+    <section style="display: flex; flex-direction: column; align-items: start;">
+      <span>(nur png und webp)</span>
+
+      <div>
+        <label v-once for="away-logo-input">Away Logo</label>
+        <input style="width: 100%;" id="away-logo-input" type="file" accept=".png,.webp" @change="onAwayLogoFileChange($event)">
+        <button v-if="awayLogo" type="button" @click="clearAwayLogo">Entfernen</button>
+      </div>
       
     </section>
 
